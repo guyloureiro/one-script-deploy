@@ -82,7 +82,11 @@ function launch_playbook() {
         if [ "${DEBUG}" = "true" ]
         then
             if [ "$remote_launch" = "true" ] ; then
-                logger debug " Command launched on remote node: ansible-playbook -i hosts --extra-vars @environment/extra_vars.yml ${playbook}.yml ${ANSIBLE_PYTHON_3_PARAMS} "
+                if [ "${playbook}" = "create_freeipa.yml" ] ; then
+                  logger debug " Command launched on remote node: /root/ansible-venv/bin/ansible-playbook -i hosts --extra-vars @environment/extra_vars.yml ${playbook}.yml ${ANSIBLE_PYTHON_3_PARAMS} " 
+                else
+                  logger debug " Command launched on remote node: ansible-playbook -i hosts --extra-vars @environment/extra_vars.yml ${playbook}.yml ${ANSIBLE_PYTHON_3_PARAMS} "
+                fi
             else 
                 logger debug " Command launched: ansible-playbook -i ${HOSTS_FILE} playbooks/${playbook}/main.yml --extra-vars \"@/tmp/${playbook}_extra_vars.yml\" ${ANSIBLE_PYTHON_3_PARAMS} "
             fi
@@ -91,7 +95,11 @@ function launch_playbook() {
         if [ "$remote_launch" = "true" ] ; then
             log_file="${LOG_DIR}/deployment.log"
             logger info " Follow progression in: #underline:$log_file "
-            ssh -o ServerAliveInterval=60 ${NODE_USER}@${NODE_0} "cd ~/deployment/ansible-repo/ ; ansible-playbook -i hosts --extra-vars @environment/extra_vars.yml ${playbook}.yml ${ANSIBLE_PYTHON_3_PARAMS}" >> $log_file 2>&1 &
+            if [ "${playbook}" = "create_freeipa.yml" ] ; then
+                ssh -o ServerAliveInterval=60 ${NODE_USER}@${NODE_0} "cd ~/deployment/ansible-repo/ ; /root/ansible-venv/bin/ansible-playbook -i hosts --extra-vars @environment/extra_vars.yml ${playbook}.yml ${ANSIBLE_PYTHON_3_PARAMS} " >> $log_file 2>&1 & 
+            else
+                ssh -o ServerAliveInterval=60 ${NODE_USER}@${NODE_0} "cd ~/deployment/ansible-repo/ ; /root/ansible-venv/bin/ansible-playbook -i hosts --extra-vars @environment/extra_vars.yml ${playbook}.yml ${ANSIBLE_PYTHON_3_PARAMS}" >> $log_file 2>&1 &
+           fi
         else
             log_file="${LOG_DIR}/${playbook}.log"
             cp playbooks/${playbook}/extra_vars.yml /tmp/${playbook}_extra_vars.yml

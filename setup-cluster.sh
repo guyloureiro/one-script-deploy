@@ -995,6 +995,28 @@ then
         export ANSIBLE_REPO_DIR="cldr-playbook-CDP-7.1.9"
         export PVC="true"
         export FREE_IPA="true"
+    elif [ "${CLUSTER_TYPE}" = "cdp-pvc-731" ]
+    then
+        export ANSIBLE_HOST_FILE="ansible-cdp-73X/ansible-cdp-pvc/hosts"
+        export ANSIBLE_ALL_FILE="ansible-cdp-73X/ansible-cdp-pvc/all"
+        export ANSIBLE_CLUSTER_YML_FILE="ansible-cdp-73X/ansible-cdp-pvc/cluster.yml"
+        export ANSIBLE_EXTRA_VARS_YML_FILE="ansible-cdp-73X/ansible-cdp-pvc/extra_vars.yml"
+        #export PVC_VERSION="1.5.5.1000"
+        #export CM_VERSION="7.13.1.700"
+        #export CDH_VERSION="7.3.1.700"
+        #export CFM_VERSION="2.1.7.1000"
+        #export CEM_VERSION="2.2.0.0"
+        #export CSA_VERSION="1.13.2.0"
+        #export DATAGEN_VERSION="1.0.1"
+        #export INSTALL_REPO_URL="https://github.com/guyloureiro/cldr-playbook/archive/refs/tags/CDP-7.3.1.zip"
+        #export ANSIBLE_REPO_DIR="cldr-playbook-rhel9"
+        #export PVC="false"
+        echo PVC_VERSION = $PVC_VERSION
+        echo CM_VERSION = $CM_VERSION
+        echo CDH_VERSION = $CDH_VERSION
+        echo DATAGEN_VERSION = $DATAGEN_VERSION
+        echo INSTALL_REPO_URL = $INSTALL_REPO_URL
+        echo ANSIBLE_REPO_DIR = $ANSIBLE_REPO_DIR
     elif [ "${CLUSTER_TYPE}" = "cdp-streaming-719" ]
     then
         export ANSIBLE_HOST_FILE="ansible-cdp-71X/ansible-cdp-streaming-719/hosts"
@@ -1719,7 +1741,7 @@ then
         logger info "###### Installing required packages ######"
         if [ "${USE_ANSIBLE_PYTHON_3}" == "true" ]
         then
-            ssh ${NODE_USER}@${NODE_0} "cd ~/deployment/ansible-repo/ ; export PYTHON_PATH=/usr/bin/python3 ; ansible-galaxy install -r requirements.yml --force ; ansible-galaxy collection install -r requirements.yml --force" > ${LOG_DIR}/deployment.log 2>&1
+            ssh ${NODE_USER}@${NODE_0} "cd ~/deployment/ansible-repo/ ; export PYTHON_PATH=/usr/bin/python3 ; export VENV_PATH=~/ansible-venv; if [ ! -d "$VENV_PATH" ]; then python3 -m venv "$VENV_PATH"; $VENV_PATH/bin/pip install --upgrade pip; $VENV_PATH/bin/pip install ansible; fi; source $VENV_PATH/bin/activate; ansible-galaxy install -r requirements.yml --force ; ansible-galaxy collection install -r requirements.yml --force" > ${LOG_DIR}/deployment.log 2>&1
         else
             ssh ${NODE_USER}@${NODE_0} "cd ~/deployment/ansible-repo/ ; ansible-galaxy install -r requirements.yml --force ; ansible-galaxy collection install -r requirements.yml --force" > ${LOG_DIR}/deployment.log 2>&1
         fi
