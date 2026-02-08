@@ -1739,12 +1739,19 @@ then
         ssh ${NODE_USER}@${NODE_0} 'cd ~/deployment/ansible-repo/ ; export CLOUD_TO_USE=static ; export INVENTORY_TO_USE=hosts ; bash install_cluster.sh' > ${LOG_DIR}/deployment.log
     else
         logger info "###### Installing required packages ######"
+
+        set -x
+
         if [ "${USE_ANSIBLE_PYTHON_3}" == "true" ]
         then
-            ssh ${NODE_USER}@${NODE_0} "cd ~/deployment/ansible-repo/ ; export PYTHON_PATH=/usr/bin/python3 ; export VENV_PATH=~/ansible-venv; if [ ! -d "$VENV_PATH" ]; then python3 -m venv "$VENV_PATH"; $VENV_PATH/bin/pip install --upgrade pip; $VENV_PATH/bin/pip install ansible; fi; source $VENV_PATH/bin/activate; ansible-galaxy install -r requirements.yml --force ; ansible-galaxy collection install -r requirements.yml --force" > ${LOG_DIR}/deployment.log 2>&1
+            ssh ${NODE_USER}@${NODE_0} 'set -x; cd ~/deployment/ansible-repo/ ; export PYTHON_PATH=/usr/bin/python3 ; export VENV_PATH=~/ansible-venv; if [ ! -d "$VENV_PATH" ]; then python3 -m venv "$VENV_PATH"; $VENV_PATH/bin/pip install --upgrade pip; $VENV_PATH/bin/pip install ansible; fi; $VENV_PATH/bin/pip install jmespath; source $VENV_PATH/bin/activate; ansible-galaxy install -r requirements.yml --force ; ansible-galaxy collection install -r requirements.yml --force' > ${LOG_DIR}/deployment.log 2>&1
         else
-            ssh ${NODE_USER}@${NODE_0} "cd ~/deployment/ansible-repo/ ; ansible-galaxy install -r requirements.yml --force ; ansible-galaxy collection install -r requirements.yml --force" > ${LOG_DIR}/deployment.log 2>&1
+            ssh ${NODE_USER}@${NODE_0} 'set -x; cd ~/deployment/ansible-repo/ ; export PYTHON_PATH=/usr/bin/python3 ; export VENV_PATH=~/ansible-venv; if [ ! -d "$VENV_PATH" ]; then python3 -m venv "$VENV_PATH"; $VENV_PATH/bin/pip install --upgrade pip; $VENV_PATH/bin/pip install ansible; fi; $VENV_PATH/bin/pip install jmespath; source $VENV_PATH/bin/activate; ansible-galaxy install -r requirements.yml --force ; ansible-galaxy collection install -r requirements.yml --force' > ${LOG_DIR}/deployment.log 2>&1
+            #ssh ${NODE_USER}@${NODE_0} "cd ~/deployment/ansible-repo/ ; ansible-galaxy install -r requirements.yml --force ; ansible-galaxy collection install -r requirements.yml --force" > ${LOG_DIR}/deployment.log 2>&1
         fi
+
+        set +x
+
         logger info "Required Packages Installed"
 
 
